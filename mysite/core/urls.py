@@ -1,9 +1,10 @@
 # core/urls.py
 from rest_framework.routers import DefaultRouter
 from django.urls import path, include
-
-# Importer les modules, pas directement les classes pour éviter les erreurs d'import
 from core.views import stock, vente, achat, rh, transaction
+from core.views.dashboard import DashboardStatsView
+from .views.dashboard import HistoriqueVentesView
+
 
 router = DefaultRouter()
 
@@ -29,4 +30,6 @@ router.register(r'transactions', transaction.TransactionViewSet, basename='trans
 
 urlpatterns = [
     path("", include(router.urls)),
+    path('dashboard-stats/', DashboardStatsView.as_view(), name='dashboard-stats'),
+    path('stats/historique-ventes/', HistoriqueVentesView.as_view(), name='historique-ventes'),
 ]
