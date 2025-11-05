@@ -1,3 +1,5 @@
+from . import schema_extensions
+
 """
 Module principal de l'application 'core' pour Mutooni ERP.
 

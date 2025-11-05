@@ -1,8 +1,25 @@
 import os
-import firebase_admin
-from firebase_admin import credentials
+from firebase_admin import credentials, initialize_app
+from django.conf import settings
 
-cred_path = os.getenv("FIREBASE_CREDENTIALS")
-if cred_path and not firebase_admin._apps:
-    cred = credentials.Certificate(cred_path)
-    firebase_admin.initialize_app(cred)
+# Deux emplacements possibles (local/dev et conteneur)
+cred_paths = [
+    os.path.join(settings.BASE_DIR, 'firebase', 'serviceAccountKey.json'),  # Pour le conteneur
+    os.path.join(settings.BASE_DIR, 'core', 'firebase', 'serviceAccountKey.json')  # Pour le dev local
+]
+
+cred_path = None
+for path in cred_paths:
+    if os.path.exists(path):
+        cred_path = path
+        break
+
+if not cred_path:
+    raise FileNotFoundError(f"""
+    Fichier Firebase introuvable. Cherché aux emplacements:
+    - {cred_paths[0]}
+    - {cred_paths[1]}
+    """)
+
+cred = credentials.Certificate(cred_path)
+firebase_app = initialize_app(cred)

@@ -52,30 +52,41 @@ SECRET_KEY = os.getenv("SECRET_KEY") or get_random_secret_key()
 ALLOWED_HOSTS = ["*", "192.168.61.131"]
 
 # ─────────────────────────────────────────────
-# 5. Applications
+# 5. Applications (MODIFICATIONS ICI)
 # ─────────────────────────────────────────────
 INSTALLED_APPS = [
-    "django.contrib.admin",
+    # Apps Django par défaut
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
-    # Tiers
+    # Apps tiers EXISTANTES
     "rest_framework",
     "rest_framework_simplejwt",
     "django_filters",
     "corsheaders",
     "drf_spectacular",
 
-    # Projet
+    # NOUVELLES extensions admin (doivent venir AVANT django.contrib.admin)
+    "admin_interface",
+    "colorfield",
+    "import_export",
+    "rangefilter",
+    "django_admin_listfilter_dropdown",
+
+    # Admin Django (doit être APRÈS les extensions)
+    "django.contrib.admin",
+
+    # Apps projet
     "core",
     "users",
 ]
 
+
 # ─────────────────────────────────────────────
-# 6. Middleware
+# 6. Middleware (inchangé)
 # ─────────────────────────────────────────────
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -93,7 +104,7 @@ WSGI_APPLICATION = "mysite.wsgi.application"
 ASGI_APPLICATION = "mysite.asgi.application"
 
 # ─────────────────────────────────────────────
-# 7. Base de données
+# 7. Base de données (inchangé)
 # ─────────────────────────────────────────────
 if ENV == "prod":
     DATABASES = {
@@ -115,7 +126,7 @@ else:
     }
 
 # ─────────────────────────────────────────────
-# 8. Authentification & API REST
+# 8. Authentification & API REST (inchangé)
 # ─────────────────────────────────────────────
 AUTH_USER_MODEL = "users.User"
 
@@ -130,7 +141,7 @@ REST_FRAMEWORK = {
         "django_filters.rest_framework.DjangoFilterBackend",
         "rest_framework.filters.SearchFilter",
     ],
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",  # ✅ requis pour OpenAPI
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 SIMPLE_JWT = {
@@ -140,7 +151,7 @@ SIMPLE_JWT = {
 }
 
 # ─────────────────────────────────────────────
-# 9. drf-spectacular (OpenAPI/Swagger)
+# 9. drf-spectacular (inchangé)
 # ─────────────────────────────────────────────
 SPECTACULAR_SETTINGS = {
     "TITLE": "Mutooni API",
@@ -158,7 +169,7 @@ SPECTACULAR_SETTINGS = {
 }
 
 # ─────────────────────────────────────────────
-# 10. Internationalisation
+# 10. Internationalisation (inchangé)
 # ─────────────────────────────────────────────
 LANGUAGE_CODE = "fr-fr"
 TIME_ZONE = os.getenv("TZ", "Africa/Dakar")
@@ -166,7 +177,7 @@ USE_I18N = True
 USE_TZ = True
 
 # ─────────────────────────────────────────────
-# 11. Statics & Médias
+# 11. Statics & Médias (inchangé)
 # ─────────────────────────────────────────────
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
@@ -174,14 +185,10 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 # ─────────────────────────────────────────────
-# 12. CORS (Flutter Web & autres clients)
+# 12. CORS (inchangé)
 # ─────────────────────────────────────────────
 CORS_ALLOW_CREDENTIALS = True
-
-# Ajoutez cette ligne pour autoriser toutes les origines en développement
 CORS_ALLOW_ALL_ORIGINS = DEBUG
-
-# Mettez à jour cette liste avec toutes vos origines
 CORS_ALLOWED_ORIGINS = [
     "https://9002-firebase-mutooni-front-1751399486531.cluster-l6vkdperq5ebaqo3qy4ksvoqom.cloudworkstations.dev",
     "https://9000-firebase-mutooni-front-1751399486531.cluster-l6vkdperq5ebaqo3qy4ksvoqom.cloudworkstations.dev",
@@ -192,20 +199,14 @@ CORS_ALLOWED_ORIGINS = [
     "https://8000-firebase-mutooni-back-1751236955562.cluster-l6vkdperq5ebaqo3qy4ksvoqom.cloudworkstations.dev",
     "http://192.168.61.131:8000",
 ]
-
-# Ajoutez cette regex pour autoriser tous les sous-domaines
 CORS_ALLOWED_ORIGIN_REGEXES = [
     r"^https:\/\/(\d+)-firebase-mutooni-(front|back)-.+\.cloudworkstations\.dev$"
 ]
-
-# Ajoutez ces headers supplémentaires
 CORS_ALLOW_HEADERS = list(default_headers) + [
     "authorization",
     "content-type",
     "x-requested-with",
 ]
-
-# Ajoutez ces méthodes
 CORS_ALLOW_METHODS = [
     "GET",
     "POST",
@@ -214,18 +215,39 @@ CORS_ALLOW_METHODS = [
     "DELETE",
     "OPTIONS"
 ]
+CSRF_TRUSTED_ORIGINS = [
+    'https://9800-firebase-mutconi-back-1751236955562.cluster-16.widperq5ebaqo3gy4ksvoqom.cloudworkstations.dev',
+    'https://*.cloudworkstations.dev'
+]
 
 # ─────────────────────────────────────────────
-# 13. Firebase
+# 13. Firebase (inchangé)
 # ─────────────────────────────────────────────
 FIREBASE_CREDENTIALS = os.getenv("FIREBASE_CREDENTIALS")
-
 if FIREBASE_CREDENTIALS:
     try:
-        # Décoder les credentials si nécessaire
         import json
         FIREBASE_CONFIG = json.loads(FIREBASE_CREDENTIALS)
     except json.JSONDecodeError:
         FIREBASE_CONFIG = None
 else:
     FIREBASE_CONFIG = None
+
+# ─────────────────────────────────────────────
+# 14. Nouvelle section : Configuration Admin
+# ─────────────────────────────────────────────
+X_FRAME_OPTIONS = "SAMEORIGIN"  # Nécessaire pour admin_interface
+SILENCED_SYSTEM_CHECKS = ["security.W019"]  # Pour admin_interface
+
+IMPORT_EXPORT_USE_TRANSACTIONS = True  # Pour l'intégrité des données lors des imports
+
+# Configuration du thème admin
+ADMIN_SITE_HEADER = "Administration Mutooni"
+ADMIN_SITE_TITLE = "Portail d'administration"
+ADMIN_INDEX_TITLE = "Gestion du backoffice"
+ADMIN_INTERFACE_CONFIG = {
+    'THEME': 'Mutooni',
+    'DARK_MODE': True,  # Activer le mode sombre
+    'COLOR_SCHEME': 'auto',  # auto | light | dark
+    'DEFAULT_COLOR_SCHEME': 'dark',  # Préférer le mode sombre
+}
